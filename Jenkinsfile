@@ -1,36 +1,31 @@
 pipeline {
     agent any
-    
+    triggers {
+        cron('H/10 * * * 4') // Every 10 minutes on Thursdays
+    }
     stages {
-        stage('Checkout') {
+        stage('Checkout SCM') {
             steps {
-                // Checkout SCM here
                 checkout scm
             }
         }
         stage('Build') {
             steps {
-                // Your build steps here
+                sh 'mvn clean package'
             }
         }
         stage('Test') {
             steps {
-                // Your test steps here
+                sh 'mvn test'
             }
         }
-    }
-    
-    post {
-        always {
-            script {
-                try {
-                    currentBuild.result = 'SUCCESS'
-                } catch (Exception e) {
-                    currentBuild.result = 'SUCCESS'
-                }
+        stage('Generate Code Coverage') {
+            steps {
+                sh 'mvn jacoco:report'
             }
         }
     }
 }
+
 
 
